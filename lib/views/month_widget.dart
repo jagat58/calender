@@ -1,87 +1,132 @@
-
+import 'dart:math';
+import 'package:calender/models/calendar_models.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
+import '../viewmodel/calender_view_model.dart';
 
-class MonthWidget extends StatefulWidget {
+class MonthWidget extends StatelessWidget {
   final DateTime focusedDay;
   final Function(DateTime) onPageChanged;
 
   const MonthWidget({super.key, required this.focusedDay, required this.onPageChanged});
 
   @override
-  _MonthWidgetState createState() => _MonthWidgetState();
-}
-
-class _MonthWidgetState extends State<MonthWidget> {
-  DateTime? _selectedDay;
-
-  @override
   Widget build(BuildContext context) {
+    final model = Provider.of<CalendarViewModel>(context);
+
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF0C78C0), Color(0xFF1F03AC)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
+      
       child: TableCalendar(
         firstDay: DateTime.utc(2010, 1, 1),
         lastDay: DateTime.utc(2030, 12, 31),
-        focusedDay: widget.focusedDay,
-        calendarFormat: CalendarFormat.month,
+        focusedDay: model.focusedDay,
+        rowHeight: 60,
         headerVisible: false,
-        availableGestures: AvailableGestures.horizontalSwipe,
-        daysOfWeekStyle: const DaysOfWeekStyle(
-          weekdayStyle: TextStyle(color: Colors.white),
-          weekendStyle: TextStyle(color: Colors.white),
+        daysOfWeekStyle: DaysOfWeekStyle(
+        dowTextFormatter: (date, locale) {
+          return getWeekDayName((date.weekday % 7));
+        },
+        weekdayStyle: const TextStyle(color: Colors.green, fontSize: 20), // Increased font size
+        weekendStyle: const TextStyle(color: Colors.green, fontSize: 20), // Increased font size
         ),
-        calendarStyle: CalendarStyle(
-          todayDecoration: const BoxDecoration(
-            color: Color.fromARGB(255, 236, 186, 186),
-            shape: BoxShape.rectangle,
-          ),
-          selectedDecoration: const BoxDecoration(
-            color: Colors.orange,
-            shape: BoxShape.rectangle,
-          ),
-          defaultDecoration: BoxDecoration(
-            color: Colors.transparent,
-            shape: BoxShape.rectangle,
-          ),
-          weekendDecoration: BoxDecoration(
-            color: Colors.transparent,
-            shape: BoxShape.rectangle,
-          ),
-          defaultTextStyle: const TextStyle(color: Colors.white),
-          weekendTextStyle: const TextStyle(color: Colors.white),
-          withinRangeDecoration: BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.rectangle,
-          ),
-          withinRangeTextStyle: const TextStyle(color: Colors.black),
-          rangeHighlightColor: Colors.white.withOpacity(0.3),
-          rangeStartDecoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.5),
-            shape: BoxShape.rectangle,
-          ),
-          rangeEndDecoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.5),
-            shape: BoxShape.rectangle,
-          ),
+        calendarBuilders: CalendarBuilders(
+        defaultBuilder: (context, date, _) {
+          return _buildDayCell(context, date, model);
+        },
+        todayBuilder: (context, date, _) {
+          return _buildDayCell(context, date, model, isToday: true);
+        },
+        selectedBuilder: (context, date, _) {
+          return _buildDayCell(context, date, model, isSelected: true);
+        },
+        ),
+        calendarStyle: const CalendarStyle(
+        outsideDaysVisible: false,
         ),
         selectedDayPredicate: (day) {
-          return isSameDay(_selectedDay, day);
+        return isSameDay(model.focusedDay, day);
         },
         onDaySelected: (selectedDay, focusedDay) {
-          setState(() {
-            _selectedDay = selectedDay;
-          });
+        model.onDaySelected(selectedDay);
         },
-        onPageChanged: widget.onPageChanged,
-        rangeStartDay: widget.focusedDay.subtract(Duration(days: widget.focusedDay.weekday - 1)),
-        rangeEndDay: widget.focusedDay.add(Duration(days: DateTime.saturday - widget.focusedDay.weekday)),
+        onPageChanged: onPageChanged,
       ),
     );
   }
+
+  Widget _buildDayCell(BuildContext context, DateTime date, CalendarViewModel model,
+      {bool isToday = false, bool isSelected = false}) {
+    final nepaliDate = convertToNepaliNumber(date.day.toString()); 
+    final events = model.festivalsForMonth;
+    final astrologicalDay = model.astrologicalDayName;
+    final englishDate = date.day.toString();
+
+    return Padding(
+      padding: const EdgeInsets.all(2.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Colors.orange
+              : isToday
+                  ? const Color.fromARGB(255, 236, 186, 186)
+                  : Colors.transparent,
+          borderRadius: BorderRadius.circular(8.0),
+         
+        ),
+        child: 
+        SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      englishDate,
+                      style: TextStyle(fontSize: 12, color: isSelected || isToday ? Colors.white : Colors.black),
+                    ),
+                  ],
+                ),
+              ),
+              Text(
+                nepaliDate,
+                style: TextStyle(fontSize: 22, color: isSelected || isToday ? Colors.white : Colors.black),
+              ),
+              const SizedBox(height: 2),
+              
+              Text(
+                astrologicalDay,
+                style: TextStyle(fontSize: 12, color: isSelected || isToday ? Colors.white : Colors.black),
+              ),
+              // const SizedBox(height: 4),
+              // Text(
+              //   events.toString(),
+              //   style: TextStyle(fontSize: 10, color: isSelected || isToday ? Colors.white : Colors.black),
+              // ),
+            ],
+          ),
+        ),
+      ),
+    );
+}
+
+// Helper functions
+List<int> generateNepaliRandomDays(int numberOfDays) {
+  final random = Random();
+  List<int> days = [];
+  for (int i = 0; i < numberOfDays; i++) {
+    days.add(random.nextInt(5) + 28); // Generate random days
+  }
+  return days; // Return raw integers
+}
+
+String convertToNepaliNumber(String number) {
+  const List<String> nepaliNumbers = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+  return number.split('').map((digit) => nepaliNumbers[int.parse(digit)]).join('');
+}
+
+
 }
