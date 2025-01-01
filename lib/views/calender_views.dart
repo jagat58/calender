@@ -1,144 +1,89 @@
-// import 'package:flutter/material.dart';
-// import '../controllers/calendar_controller.dart';
-// import '../models/calendar_models.dart';
-// import 'month_widget.dart';
-
-// class CalendarView extends StatefulWidget {
-//   const CalendarView({super.key});
-
-//   @override
-//   State<CalendarView> createState() => _CalendarViewState();
-// }
-
-// class _CalendarViewState extends State<CalendarView> {
-//   final CalendarController controller = CalendarController();
-//   int selectedMonth = DateTime.now().month;
-//   int currentYear = DateTime.now().year;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final CalendarModel monthData = controller.getMonthData(selectedMonth, currentYear);
-
-//     return Scaffold(
-//       backgroundColor: const Color.fromARGB(255, 12, 120, 192),
-//       appBar: AppBar(
-//         backgroundColor: const Color.fromARGB(255, 12, 120, 192),
-//         title: Row(
-//           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//           children: [
-//         IconButton(
-//           icon: const Icon(Icons.more_vert , color: Colors.white),
-//           onPressed: () {
-//           }
-//         ),
-//         RichText(
-//           text: TextSpan(
-//             children: [
-//           TextSpan(
-//             text: '${monthData.month} ',
-//             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-//           ),
-//           TextSpan(
-//             text: '${monthData.year}',
-//             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey),
-//           ),
-//             ],
-//           ),
-//         ),
-//         Row(
-//           children: [
-//             IconButton(
-//               icon: const Icon(Icons.menu, color: Colors.white),
-//               onPressed: () {
-//               },
-//             ),
-           
-//           ],
-//         ),
-//           ],
-//         ),
-//         centerTitle: true,
-//       ),
-//       body: Column(
-//         children: [
-//           Container(
-//             height: 320,
-//             child: MonthWidget(monthData: monthData)),
-         
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-
+import 'package:calender/views/month_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import '../controllers/calendar_controller.dart';
-import '../controllers/calender_provider.dart';
-import 'month_slider.dart';
+import '../models/calendar_models.dart';
 
-class CalendarView extends StatelessWidget {
+class CalendarView extends StatefulWidget {
   const CalendarView({super.key});
 
   @override
+  _CalendarViewState createState() => _CalendarViewState();
+}
+
+class _CalendarViewState extends State<CalendarView> {
+  DateTime _focusedDay = DateTime.now();
+
+  @override
   Widget build(BuildContext context) {
-    final calendarProvider = Provider.of<CalendarProvider>(context);
-    final controller = CalendarController();
-    final monthData = controller.getMonthData(
-      calendarProvider.currentDate.month,
-      calendarProvider.currentDate.year,
-    );
+    final String month = getMonthName(_focusedDay.month);
+    final String year = '${_focusedDay.year}';
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 12, 120, 192),
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 12, 120, 192),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: Container(
+        height: 450,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF0C78C0), Color(0xFF1F03AC)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Column(
           children: [
-            IconButton(
-              icon: const Icon(Icons.more_vert, color: Colors.white),
-              onPressed: () {},
-            ),
-            RichText(
-              text: TextSpan(
+            Padding(
+              padding: const EdgeInsets.only(top: 30.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  TextSpan(
-                    text: '${monthData.month} ',
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                  IconButton(
+                    icon: const Icon(Icons.more_vert, color: Colors.white),
+                    onPressed: () {},
                   ),
-                  TextSpan(
-                    text: '${monthData.year}',
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey),
+                  RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '$month ',
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        TextSpan(
+                          text: year,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.menu, color: Colors.white),
+                    onPressed: () {},
                   ),
                 ],
               ),
             ),
-            Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.menu, color: Colors.white),
-                  onPressed: () {},
-                ),
-              ],
-            ),
-          ],
-        ),
-        centerTitle: true,
-      ),
-      body: Container(
-        height: 350,
-        child: Column(
-          children: [
+            SizedBox(height: 30),
             Expanded(
-          child: MonthSlider(monthData: monthData),
+              child: MonthWidget(
+                focusedDay: _focusedDay,
+                onPageChanged: (focusedDay) {
+                  setState(() {
+                    _focusedDay = focusedDay;
+                  });
+                },
+              ),
             ),
           ],
         ),
       ),
     );
   }
-}
 
+}
