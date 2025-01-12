@@ -1,4 +1,3 @@
-// calendar_view.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodel/calender_view_model.dart';
@@ -9,6 +8,10 @@ class CalendarView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final screenHeight = mediaQuery.size.height;
+    final screenWidth = mediaQuery.size.width;
+
     return ChangeNotifierProvider(
       create: (_) => CalendarViewModel(),
       child: Scaffold(
@@ -19,7 +22,7 @@ class CalendarView extends StatelessWidget {
         body: Consumer<CalendarViewModel>(
           builder: (context, model, _) {
             return Container(
-              height: 430,
+              height: screenHeight * 0.6,
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   colors: [Colors.white, Color.fromARGB(255, 225, 212, 227)],
@@ -30,7 +33,7 @@ class CalendarView extends StatelessWidget {
               child: Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(top: 5.0),
+                    padding: EdgeInsets.only(top: screenHeight * 0.01),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -44,16 +47,16 @@ class CalendarView extends StatelessWidget {
                             children: [
                               TextSpan(
                                 text: '${model.monthName} ',
-                                style: const TextStyle(
-                                  fontSize: 24,
+                                style: TextStyle(
+                                  fontSize: screenWidth * 0.07,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black,
                                 ),
                               ),
                               TextSpan(
-                                text: '2081',
-                                style: const TextStyle(
-                                  fontSize: 18,
+                                text: '२०८१',
+                                style: TextStyle(
+                                  fontSize: screenWidth * 0.045,
                                   fontWeight: FontWeight.w400,
                                   color: Colors.grey,
                                 ),
@@ -68,12 +71,12 @@ class CalendarView extends StatelessWidget {
                       ],
                     ),
                   ),
-                  SizedBox(height: 30),
+                  SizedBox(height: screenHeight * 0.04),
                   Expanded(
                     child: MonthWidget(
                       focusedDay: model.focusedDay,
                       onPageChanged: (focusedDay) {
-                        model.onDaySelected(focusedDay);
+                        model.onMonthChanged(focusedDay); 
                       },
                     ),
                   ),

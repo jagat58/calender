@@ -1,6 +1,6 @@
 class CalendarModel {
-  final int month;
-  final int year;
+  int month;
+  int year;
 
   CalendarModel({required this.month, required this.year});
 
@@ -42,14 +42,16 @@ class CalendarModel {
   }
 
   String getEnglishDate(DateTime date) {
-    return "${date.day}";
+    return "${date.day}-${date.month}-${date.year}";
   }
 
- 
-  
- 
+  void updateMonthAndYear(int newMonth, int newYear) {
+    month = newMonth;
+    year = newYear;
+  }
 }
- String getWeekDayName(int dayNumber) {
+
+String getWeekDayName(int dayNumber) {
   const List<String> nepaliWeekDayNames = [
     'आइत', 'सोम', 'मंगल', 'बुध', 'बिही', 'शुक्र', 'शनि'
   ];

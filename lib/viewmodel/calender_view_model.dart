@@ -17,6 +17,13 @@ class CalendarViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void onMonthChanged(DateTime newFocusedDay) {
+    _focusedDay = newFocusedDay;
+    _calendarModel.month = newFocusedDay.month;
+    _calendarModel.year = newFocusedDay.year;
+    notifyListeners();
+  }
+
   String getEnglishDate(DateTime date) {
     return _calendarModel.getEnglishDate(date);
   }
